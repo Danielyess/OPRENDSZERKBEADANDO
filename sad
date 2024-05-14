@@ -1,0 +1,7 @@
+DECLARE @cnt INT = 1;
+
+WHILE @cnt <= 5000
+BEGIN
+   insert into 
+   SET @cnt = @cnt + 1;
+END;

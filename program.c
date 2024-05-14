@@ -5,9 +5,9 @@
 #include <string.h>
 #include <time.h>
 
-#include <unistd.h>
-#include <semaphore.h>
-#include <signal.h>
+// #include <unistd.h>
+// #include <semaphore.h>
+// #include <signal.h>
 
 
 //karakter structok szetszedve egy masik fajlba
@@ -64,66 +64,108 @@ int hit = 1;
 int miss= 0;
 int pipeBuffer = sizeof(hit);
 
-sem_t szemafor;
+// sem_t szemafor;
 
 void ijaszAction(){
     if(ijasz.ACC <= randomInt(1,100)){ // pipeba ir egy 1est mert talalat es incrementalja a szemafort
         ijasz.ACC+= ACCRamp;
-        write(pipefds[0], &hit, pipeBuffer);
-        printf("Ijasz attacked and hit");
+        // write(pipefds[0], &hit, pipeBuffer);
+        printf("Ijasz attacked and hit\n");
     }
     else{
         ijasz.ACC = ijaszBaseACC;
-        write(pipefds[1], &miss, pipeBuffer);
-        printf("Ijasz attacked and missed");
+        // write(pipefds[1], &miss, pipeBuffer);
+        printf("Ijasz attacked and missed\n");
     }
-    sem_post(&szemafor);
+    // sem_post(&szemafor);
 }
-void kozelharcosAction(){}
+void kozelharcosAction(){
+    if(kozelharcos.ACC <= randomInt(1,100)){ // pipeba ir egy 1est mert talalat es incrementalja a szemafort
+        kozelharcos.ACC+= ACCRamp;
+        // write(pipefds[0], &hit, pipeBuffer);
+        printf("Kozelharcos attacked and hit\n");
+    }
+    else{
+        kozelharcos.ACC = kozelharcosBaseACC;
+        // write(pipefds[1], &miss, pipeBuffer);
+        printf("Kozelharcos attacked and missed\n");
+    }
+    // sem_post(&szemafor);
+}
 
-void szornyActionIjasz(){}
-void szornyActionKozelharcos(){}
+void szornyActionIjasz(){
+    if(szorny.ACC <= randomInt(1,100)){ // pipeba ir egy 1est mert talalat es incrementalja a szemafort
+        // write(pipefds[0], &hit, pipeBuffer);
+        printf("Szorny attacked and hit Ijasz\n");
+    }
+    else{
+        // write(pipefds[1], &miss, pipeBuffer);
+        printf("Szorny attacked and missed Ijasz\n");
+    }
+    // sem_post(&szemafor);
+}
+
+void szornyActionKozelharcos(){
+    if(szorny.ACC <= randomInt(1,100)){ // pipeba ir egy 1est mert talalat es incrementalja a szemafort
+        // write(pipefds[0], &hit, pipeBuffer);
+        printf("Szorny attacked and hit Kozelharcos\n");
+    }
+    else{
+        // write(pipefds[1], &miss, pipeBuffer);
+        printf("Szorny attacked and missed Kozelharcos\n");
+    }
+    // sem_post(&szemafor);
+}
 
 int simulateGame(){
 
-    pid_t child_pid[3];
-    sem_init(&szemafor, 0, 0);
+    // pid_t child_pid[3];
+    // sem_init(&szemafor, 0, 1);
 
-    for (int i = 0; i < 3; i++){// child processzek letrehozasa
+    // for (int i = 0; i < 3; i++){// child processzek letrehozasa
     
-        child_pid[i] = fork();
-        if(child_pid[i] == -1) return -1;
-    } 
-    if(child_pid[0] == 0){ // ijasz process
-        printf("Child process 0 runnig.");
+    //     child_pid[i] = fork();
+    //     if(child_pid[i] == -1) return -1;
+    // } 
+    // if(child_pid[0] == 0){ // ijasz process
+    //     printf("Child process 0 runnig.");
 
-        signal(SIGUSR1, ijaszAction);
-        printf("ijasz set up");
-        while(1) pause();
-        exit(0);
-    }
-    if(child_pid[1] == 0){ //kozelharcos process
-        printf("Child process 1 runnig.");
+    //     signal(SIGUSR1, ijaszAction);
+    //     printf("ijasz set up");
+    //     while(1) pause();
+    //     exit(0);
+    // }
+    // if(child_pid[1] == 0){ //kozelharcos process
+    //     printf("Child process 1 runnig.");
 
-        signal(SIGUSR1, kozelharcosAction);
-        printf("kozelharcos set up"); 
-        while(1) pause();
-        exit(0);
-    }
-    if(child_pid[2] == 0){ //szorny process
-        printf("Child process 2 runnig.");
+    //     signal(SIGUSR1, kozelharcosAction);
+    //     printf("kozelharcos set up"); 
+    //     while(1) pause();
+    //     exit(0);
+    // }
+    // if(child_pid[2] == 0){ //szorny process
+    //     printf("Child process 2 runnig.");
 
-        signal(SIGUSR1, szornyActionIjasz);
-        signal(SIGUSR2, szornyActionKozelharcos);
-        printf("szornyprocess set up");
-        while(1) pause();
-        exit(0);
-    }
+    //     signal(SIGUSR1, szornyActionIjasz);
+    //     signal(SIGUSR2, szornyActionKozelharcos);
+    //     printf("szornyprocess set up");
+    //     while(1) pause();
+    //     exit(0);
+    // }
 
     makeBeast(randomInt(1,3));
-    printf("Uj Ellenfel %s , %d-es eletero , %d-es sebzes, %d-es pontossag.", szorny.nev, szorny.HP, szorny.DMG, szorny.ACC);
-    kill(child_pid[0],SIGUSR1);
+    printf("Uj Ellenfel %s , %d-es eletero , %d-es sebzes, %d-es pontossag.\n", szorny.nev, szorny.HP, szorny.DMG, szorny.ACC);
+    // kill(child_pid[0],SIGUSR1);
+    ijaszAction();
 
+    kozelharcosAction();
+
+    int attackWhich = randomInt(1,2);
+
+    if(attackWhich==1){
+        szornyActionIjasz();
+    }
+    else szornyActionKozelharcos();
     return 0;
 }
 
